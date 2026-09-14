@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 export function ImageUpload({
@@ -51,7 +52,7 @@ export function ImageUpload({
     >
       <input ref={inputRef} type="file" accept="image/*,video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) doUpload(f); }} />
       {preview ? (
-        <img src={preview} alt="preview" className="mx-auto h-32 w-auto rounded-xl object-cover" />
+        <Image src={preview} alt="preview" width={128} height={128} className="mx-auto h-32 w-auto rounded-xl object-cover" unoptimized />
       ) : (
         <div className="space-y-1">
           <p className="text-sm font-medium text-[#8A7D6B]">{label}</p>

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
@@ -12,7 +13,7 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full border-b border-[#EDE6D6] bg-[#FDFBF7]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="AI-KOS" className="h-9 w-9 rounded-xl object-cover border border-[#EDE6D6] shadow-soft" />
+          <Image src="/logo.png" alt="AI-KOS" width={36} height={36} className="h-9 w-9 rounded-xl object-cover border border-[#EDE6D6] shadow-soft" />
           <span className="font-serif text-[18px] font-bold tracking-tight text-[#2C2416]">AI-KOS</span>
           <span className="hidden sm:inline ml-1 rounded-full border border-[#E8DCC8] bg-white px-2.5 py-0.5 text-[10px] tracking-widest uppercase text-[#8A7D6B]">Luxury Living</span>
         </Link>

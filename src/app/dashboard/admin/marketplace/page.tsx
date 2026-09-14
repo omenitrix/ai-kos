@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -144,7 +145,7 @@ export default function AdminMarketplace() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((it:any)=>(
           <Card key={it.id} className={`overflow-hidden rounded-2xl border-[#EDE6D6] shadow-soft ${!it.isActive?"opacity-60":""}`}>
-            <img src={it.foto || `https://picsum.photos/seed/market-${it.id}/400/250`} alt={it.nama} className="h-44 w-full object-cover" />
+            <Image src={it.foto || `https://picsum.photos/seed/market-${it.id}/400/250`} alt={it.nama || "marketplace"} width={400} height={250} className="h-44 w-full object-cover" unoptimized />
             <CardContent className="p-4 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-sm leading-tight">{it.nama}</h3>

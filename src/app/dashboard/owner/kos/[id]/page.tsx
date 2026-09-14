@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,7 +20,7 @@ export default function OwnerKosDetail({ params }: { params: { id: string } }) {
               <p><strong>Status:</strong> <span className={`${kos.status === "AKTIF" ? "text-green-600" : "text-red-600"}`}>{kos.status}</span></p>
               <p><strong>Deskripsi:</strong> {kos.deskripsi}</p>
               <p><strong>Foto Sampul:</strong></p>
-              <img src={kos.foto} alt={kos.nama} className="rounded-lg w-full h-48 object-cover" />
+              <Image src={kos.foto} alt={kos.nama || "kos"} width={400} height={300} className="rounded-lg w-full h-48 object-cover" unoptimized />
             </CardContent>
           </Card>
           <Card>
@@ -45,7 +46,7 @@ export default function OwnerKosDetail({ params }: { params: { id: string } }) {
             <CardHeader><CardTitle>Pratinjau Kos (untuk Penyewa)</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <img src={kos.foto} alt={kos.nama} className="rounded-lg w-full h-60 object-cover" />
+                <Image src={kos.foto} alt={kos.nama || "kos"} width={400} height={300} className="rounded-lg w-full h-60 object-cover" unoptimized />
                 <h2 className="text-xl font-bold">{kos.nama}</h2>
                 <p className="text-muted-foreground">{kos.alamat}</p>
                 <p className="mt-2">{kos.deskripsi}</p>

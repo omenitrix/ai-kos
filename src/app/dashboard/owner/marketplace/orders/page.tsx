@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,7 +29,7 @@ export default function OwnerMarketplaceOrders() {
           <Card key={o.id} className="rounded-2xl border-[#EDE6D6] shadow-soft">
             <CardContent className="p-4">
               <div className="flex gap-3">
-                <img src={o.service?.foto || `https://picsum.photos/seed/market-${o.serviceId}/80/80`} alt={o.service?.nama} className="h-14 w-14 rounded-xl object-cover border border-[#EDE6D6] shrink-0" />
+                <Image src={o.service?.foto || `https://picsum.photos/seed/market-${o.serviceId}/80/80`} alt={o.service?.nama || "marketplace"} width={80} height={80} className="h-14 w-14 rounded-xl object-cover border border-[#EDE6D6] shrink-0" unoptimized />
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold text-sm truncate">{o.service?.nama}</div>
                   <div className="text-xs text-[#8A7D6B]">Pembeli: {o.buyer?.name||o.buyer?.email} • {o.buyer?.email} • Qty {o.qty} • Rp {o.totalHarga.toLocaleString("id-ID")}</div>

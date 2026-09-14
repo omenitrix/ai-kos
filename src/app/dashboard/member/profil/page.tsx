@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,7 +56,7 @@ export default function ProfilPage() {
         <div className="h-1 bg-gradient-to-r from-[#C9A96A] via-[#E8DCC8] to-transparent" />
         <CardHeader className="pb-3">
           <div className="flex items-center gap-4">
-            <img src={form.photo || `https://picsum.photos/seed/aikos-${role}/96/96`} alt="foto" className="h-16 w-16 rounded-2xl object-cover border border-[#EDE6D6]" />
+            <Image src={form.photo || `https://picsum.photos/seed/aikos-${role}/96/96`} alt="foto" width={96} height={96} className="h-16 w-16 rounded-2xl object-cover border border-[#EDE6D6]" unoptimized />
             <div className="min-w-0">
               <CardTitle className="text-[16px]">{form.name || form.email || "Tamu"}</CardTitle>
               <CardDescription className="text-xs">@{form.username || "-"} • {form.email}</CardDescription>

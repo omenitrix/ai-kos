@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -75,7 +76,7 @@ export default function AdminMarketplaceOrders() {
             <CardContent className="p-4">
               <div className="flex flex-wrap gap-4 items-start justify-between">
                 <div className="flex gap-3 min-w-0 flex-1">
-                  <img src={o.service?.foto || `https://picsum.photos/seed/market-${o.serviceId}/80/80`} alt={o.service?.nama} className="h-14 w-14 rounded-xl object-cover border border-[#EDE6D6] shrink-0" />
+                  <Image src={o.service?.foto || `https://picsum.photos/seed/market-${o.serviceId}/80/80`} alt={o.service?.nama || "marketplace"} width={80} height={80} className="h-14 w-14 rounded-xl object-cover border border-[#EDE6D6] shrink-0" unoptimized />
                   <div className="min-w-0">
                     <div className="font-semibold text-sm truncate">{o.service?.nama}</div>
                     <div className="text-xs text-[#8A7D6B] truncate">{o.service?.kategori} • {o.service?.kos?.nama || (o.service?.kosId?"Kos terhubung":"Tanpa kos")} • Qty {o.qty} × Rp {o.service?.harga?.toLocaleString("id-ID")}</div>

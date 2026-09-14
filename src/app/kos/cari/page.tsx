@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -196,7 +197,7 @@ export default function KosCari() {
             return (
             <Card key={k.id} className={`overflow-hidden rounded-2xl border-[#EDE6D6] shadow-soft hover:shadow-soft-lg transition-all ${isFocused?"ring-2 ring-[#C9A96A] border-[#C9A96A]":""}`}>
               <div className="relative">
-                <img src={k.fotoSampul || "https://picsum.photos/seed/kos/400/250"} alt={k.nama} className="h-48 w-full object-cover" />
+                <Image src={k.fotoSampul || "https://picsum.photos/seed/kos/400/250"} alt={k.nama} width={400} height={192} className="h-48 w-full object-cover" unoptimized />
                 {dist!=null && <span className="absolute left-3 top-3 rounded-full bg-[#1C1610] text-white px-2.5 py-1 text-xs font-medium">{dist.toFixed(1)} km dari kamu</span>}
               </div>
               <CardContent className="p-4">

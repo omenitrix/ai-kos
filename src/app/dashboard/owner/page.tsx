@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -94,8 +95,8 @@ export default function OwnerDashboard() {
         <div className="lg:col-span-2 rounded-2xl bg-white border border-[#EDE6D6] shadow-soft overflow-hidden">
           <div className="p-4 flex items-center justify-between border-b border-[#F5F0E8]"><div className="text-sm font-semibold">Booking terbaru</div><Link href="/dashboard/owner/kos" className="text-xs font-medium text-[#C9A96A]">Lihat semua →</Link></div>
           <div className="divide-y divide-[#F5F0E8] text-sm">
-            <div className="p-3 flex items-center gap-3"><img src="https://picsum.photos/seed/kos1/80/80" alt="" className="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]"/><div className="flex-1 min-w-0"><div className="font-medium truncate">Kos Aman Sentosa — A-02</div><div className="text-xs text-[#8A7D6B]">Member • Rp1.500.000</div></div><span className="rounded-full bg-[#FFF3E0] border border-[#FFE0B2] px-2.5 py-1 text-xs">Pending</span></div>
-            <div className="p-3 flex items-center gap-3"><img src="https://picsum.photos/seed/kos2/80/80" alt="" className="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]"/><div className="flex-1 min-w-0"><div className="font-medium truncate">Kos Elite Cempaka — C-01</div><div className="text-xs text-[#8A7D6B]">Member • Rp2.200.000</div></div><span className="rounded-full bg-[#EAF6EC] border border-[#C8E6C9] px-2.5 py-1 text-xs">Paid</span></div>
+            <div className="p-3 flex items-center gap-3"><Image src="https://picsum.photos/seed/kos1/80/80" alt="kos" width={80} height={80} className="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]" unoptimized /><div className="flex-1 min-w-0"><div className="font-medium truncate">Kos Aman Sentosa — A-02</div><div className="text-xs text-[#8A7D6B]">Member • Rp1.500.000</div></div><span className="rounded-full bg-[#FFF3E0] border border-[#FFE0B2] px-2.5 py-1 text-xs">Pending</span></div>
+            <div className="p-3 flex items-center gap-3"><Image src="https://picsum.photos/seed/kos2/80/80" alt="kos" width={80} height={80} className="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]" unoptimized /><div className="flex-1 min-w-0"><div className="font-medium truncate">Kos Elite Cempaka — C-01</div><div className="text-xs text-[#8A7D6B]">Member • Rp2.200.000</div></div><span className="rounded-full bg-[#EAF6EC] border border-[#C8E6C9] px-2.5 py-1 text-xs">Paid</span></div>
           </div>
         </div>
         <div className="space-y-3">

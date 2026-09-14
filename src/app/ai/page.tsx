@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -174,7 +175,7 @@ export default function AIPage() {
               const isFocused = focusSlug===k.slug;
               return (
                 <div key={k.id} className={`rounded-2xl border bg-white p-3 shadow-soft flex gap-3 ${isFocused?"border-[#C9A96A] ring-2 ring-[#C9A96A]/20":"border-[#EDE6D6]"}`}>
-                  <img src={k.fotoSampul || `https://picsum.photos/seed/${k.slug}/120/120`} alt={k.nama} className="h-16 w-16 rounded-xl object-cover border border-[#EDE6D6] shrink-0" />
+                  <Image src={k.fotoSampul || `https://picsum.photos/seed/${k.slug}/120/120`} alt={k.nama} width={64} height={64} className="h-16 w-16 rounded-xl object-cover border border-[#EDE6D6] shrink-0" unoptimized />
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-semibold truncate">{k.nama}</div>
                     <div className="text-xs text-[#8A7D6B] truncate">{k.alamat}</div>

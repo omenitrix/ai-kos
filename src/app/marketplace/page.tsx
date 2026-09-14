@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -75,7 +76,7 @@ export default function Marketplace() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((item:any) => (
           <Card key={item.id} className="overflow-hidden rounded-2xl border-[#EDE6D6] shadow-soft">
-            <img src={item.foto || `https://picsum.photos/seed/market-${item.id}/400/260`} alt={item.nama} className="h-44 w-full object-cover" />
+            <Image src={item.foto || `https://picsum.photos/seed/market-${item.id}/400/260`} alt={item.nama} width={400} height={176} className="h-44 w-full object-cover" unoptimized />
             <CardContent className="p-4 space-y-3">
               <div>
                 <CardTitle className="text-[15px] leading-tight">{item.nama}</CardTitle>

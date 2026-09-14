@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,7 +49,7 @@ export default function OwnerKosList() {
           {list.map((k) => (
             <Card key={k.id} className="border rounded-2xl overflow-hidden border-[#EDE6D6] shadow-soft">
               <CardHeader className="flex flex-row items-center p-4 gap-4">
-                <img src={k.fotoSampul || `https://picsum.photos/seed/${k.id}/200/150`} alt={k.nama} className="w-16 h-16 object-cover rounded-xl border border-[#EDE6D6]" />
+                <Image src={k.fotoSampul || `https://picsum.photos/seed/${k.id}/200/150`} alt={k.nama || "kos"} width={200} height={150} className="w-16 h-16 object-cover rounded-xl border border-[#EDE6D6]" unoptimized />
                 <div className="min-w-0 flex-1">
                   <CardTitle className="text-base serif truncate">{k.nama}</CardTitle>
                   <p className="text-sm text-muted-foreground truncate">{k.alamat}</p>

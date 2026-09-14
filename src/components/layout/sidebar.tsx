@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 
 function IHome(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><path d="M3 10L12 3l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9z"/></svg>}
@@ -148,7 +149,7 @@ export function Sidebar() {
       <aside className={`fixed lg:sticky top-[68px] lg:top-[68px] z-30 h-[calc(100vh-68px)] w-[280px] shrink-0 border-r border-[#EDE6D6] bg-[#FDFBF7] flex flex-col overflow-hidden transition-transform duration-300 lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"} lg:flex`}>
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           <div className="rounded-2xl border border-[#EDE6D6] bg-white p-3.5 shadow-soft flex items-center gap-3">
-            <img src="/logo.png" alt="AI-KOS" className="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]" />
+            <Image src="/logo.png" alt="AI-KOS" width={40} height={40} className="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]" />
             <div className="min-w-0 flex-1">
               <div className="text-sm font-semibold text-[#1C1610] truncate">{session?.user?.name || session?.user?.email || "Tamu"}</div>
               <div className="text-[11px] tracking-wide text-[#8A7D6B] truncate">{session?.user?.email || "Belum login"} • <span className="font-medium text-[#C9A96A]">{roleLabel}</span></div>

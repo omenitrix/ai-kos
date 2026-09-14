@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -50,11 +51,11 @@ export default function KosDetail() {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-6">
           <div className="space-y-4">
-            <img src={kos.fotoSampul || "https://picsum.photos/seed/kos/800/450"} alt={kos.nama} className="rounded-2xl w-full h-60 object-cover border border-[#EDE6D6] shadow-soft" />
+            <Image src={kos.fotoSampul || "https://picsum.photos/seed/kos/800/450"} alt={kos.nama} width={800} height={240} className="rounded-2xl w-full h-60 object-cover border border-[#EDE6D6] shadow-soft" unoptimized />
             {Array.isArray(kos.fotoList) && kos.fotoList.length > 0 && (
               <div className="grid grid-cols-3 gap-2">
                 {kos.fotoList.slice(0,6).map((foto:string, idx:number) => (
-                  <img key={idx} src={foto} alt={`${kos.nama} ${idx+1}`} className="rounded-xl w-full h-28 object-cover border border-[#EDE6D6]" />
+                  <Image key={idx} src={foto} alt={`${kos.nama} ${idx+1}`} width={240} height={112} className="rounded-xl w-full h-28 object-cover border border-[#EDE6D6]" unoptimized />
                 ))}
               </div>
             )}

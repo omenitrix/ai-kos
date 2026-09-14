@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -86,7 +87,7 @@ export default function AdminOwners() {
         {list.map(o=>(
           <Card key={o.id} className="rounded-2xl border-[#EDE6D6] shadow-soft overflow-hidden">
             <CardContent className="p-4 flex gap-3 items-start">
-              <img src={o.photo || `https://picsum.photos/seed/owner-${o.id}/80/80`} alt={o.email} className="h-11 w-11 rounded-xl object-cover border border-[#EDE6D6] shrink-0" />
+              <Image src={o.photo || `https://picsum.photos/seed/owner-${o.id}/80/80`} alt={o.email || "owner"} width={80} height={80} className="h-11 w-11 rounded-xl object-cover border border-[#EDE6D6] shrink-0" unoptimized />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold text-sm truncate">{o.name||o.email}</span>

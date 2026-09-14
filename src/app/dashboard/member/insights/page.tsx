@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function MemberInsights() {
@@ -78,7 +79,7 @@ export default function MemberInsights() {
       <div className="rounded-2xl bg-white border border-[#EDE6D6] p-5 shadow-soft">
         <div className="flex items-center justify-between"><div className="text-sm font-semibold">Rekomendasi Untuk Kamu</div><span className="text-[11px] rounded-full bg-[#F5F0E8] border border-[#E8DCC8] px-2.5 py-1 text-[#8A7D6B]">Personal • budget-aware</span></div>
         <div className="mt-4 grid sm:grid-cols-3 gap-3">
-          {rekomendasi.length? rekomendasi.map((k:any)=>(<Link key={k.id} href={`/kos/${k.slug}`} className="rounded-xl bg-[#FDFBF7] border border-[#EDE6D6] overflow-hidden hover:border-[#C9A96A] transition-colors"><img src={k.foto||`https://picsum.photos/seed/${k.slug}/300/180`} alt={k.nama} className="h-28 w-full object-cover"/><div className="p-3"><div className="text-sm font-semibold truncate">{k.nama}</div><div className="text-xs text-[#8A7D6B] truncate">{k.alamat}</div><div className="text-xs font-bold mt-1">Rp {(k.harga||0).toLocaleString("id-ID")}/bln</div></div></Link>)) : <p className="text-xs text-[#8A7D6B] col-span-3">Belum ada rekomendasi — mulai cari untuk dapat saran personal.</p>}
+          {rekomendasi.length? rekomendasi.map((k:any)=>(<Link key={k.id} href={`/kos/${k.slug}`} className="rounded-xl bg-[#FDFBF7] border border-[#EDE6D6] overflow-hidden hover:border-[#C9A96A] transition-colors"><Image src={k.foto||`https://picsum.photos/seed/${k.slug}/300/180`} alt={k.nama || "kos"} width={300} height={180} className="h-28 w-full object-cover" unoptimized /><div className="p-3"><div className="text-sm font-semibold truncate">{k.nama}</div><div className="text-xs text-[#8A7D6B] truncate">{k.alamat}</div><div className="text-xs font-bold mt-1">Rp {(k.harga||0).toLocaleString("id-ID")}/bln</div></div></Link>)) : <p className="text-xs text-[#8A7D6B] col-span-3">Belum ada rekomendasi — mulai cari untuk dapat saran personal.</p>}
         </div>
       </div>
 

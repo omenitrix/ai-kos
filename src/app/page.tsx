@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +45,7 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-3 pt-2">
               <div className="flex -space-x-2">
-                {[1,2,3].map(i=><img key={i} src={`https://i.pravatar.cc/100?img=${10+i}`} alt="" className="h-7 w-7 rounded-full border-2 border-white object-cover"/>)}
+                {[1,2,3].map(i=><Image key={i} src={`https://i.pravatar.cc/100?img=${10+i}`} alt="" width={28} height={28} className="h-7 w-7 rounded-full border-2 border-white object-cover"/>)}
               </div>
               <span className="text-xs text-[#8A7D6B]">Dipercaya 2.000+ penyewa • Rating 4.9/5 di Jabodetabek</span>
             </div>
@@ -58,7 +59,9 @@ export default function HomePage() {
                   <span className="font-serif text-sm font-semibold text-[#2C2416]">AI-KOS Dashboard</span>
                   <span className="h-2 w-2 rounded-full bg-[#C9A96A] animate-pulse" />
                 </div>
-                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop" alt="Interior kos realistic" className="h-[220px] w-full object-cover" />
+                <div className="relative h-[220px] w-full">
+                  <Image src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop" alt="Interior kos realistic" fill className="object-cover" sizes="(max-width: 768px) 100vw, 420px" />
+                </div>
                 <div className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[#2C2416]">Kos Aman Sentosa</span>
@@ -78,7 +81,7 @@ export default function HomePage() {
                 <span className="font-medium text-[#2C2416]">AI Rekomendasi</span><span className="text-[#8A7D6B]">3 terpilih untukmu</span>
               </div>
               <div className="absolute -right-3 bottom-8 hidden md:flex items-center gap-2 rounded-2xl border border-[#EDE6D6] bg-white px-3 py-2.5 shadow-soft">
-                <img src="https://i.pravatar.cc/100?img=16" alt="" className="h-8 w-8 rounded-full"/>
+                <Image src="https://i.pravatar.cc/100?img=16" alt="" width={32} height={32} className="h-8 w-8 rounded-full object-cover"/>
                 <div className="text-xs"><div className="font-medium text-[#2C2416]">Pak Budi • Owner</div><div className="text-[#8A7D6B]">Membalas dalam 2 menit</div></div>
               </div>
             </div>
@@ -101,8 +104,8 @@ export default function HomePage() {
           {dummyKos.map((k) => (
             <Link key={k.slug} href={`/kos/${k.slug}`} className="group">
               <div className="overflow-hidden rounded-[20px] border border-[#EDE6D6] bg-white shadow-soft group-hover:shadow-soft-lg transition-all">
-                <div className="relative">
-                  <img src={k.foto} alt={k.nama} className="h-52 w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+                <div className="relative h-52 w-full overflow-hidden">
+                  <Image src={k.foto} alt={k.nama} fill className="object-cover group-hover:scale-[1.02] transition-transform duration-500" sizes="(max-width: 768px) 100vw, 33vw" />
                   <span className="absolute left-3 top-3 rounded-full bg-white/90 backdrop-blur px-2.5 py-1 text-[11px] font-semibold tracking-wide text-[#2C2416] border border-[#EDE6D6]">{k.badge}</span>
                   <span className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 backdrop-blur border border-[#EDE6D6]"><IconShield className="h-4 w-4 text-[#C9A96A]"/></span>
                 </div>
