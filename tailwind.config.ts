@@ -26,6 +26,18 @@ const config: Config = {
       boxShadow: {
         soft: "0 8px 32px rgba(28,22,12,0.07), 0 2px 8px rgba(28,22,12,0.05)",
         "soft-lg": "0 16px 48px rgba(28,22,12,0.10), 0 4px 16px rgba(28,22,12,0.06)",
+        gold: "0 8px 24px rgba(201,169,106,0.22)",
+        "gold-lg": "0 16px 36px rgba(201,169,106,0.28)",
+      },
+      keyframes: {
+        "fade-in": { "0%": { opacity: "0", transform: "translateY(8px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+        float: { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-6px)" } },
+        shimmer: { "0%": { backgroundPosition: "-200% 0" }, "100%": { backgroundPosition: "200% 0" } },
+      },
+      animation: {
+        "fade-in": "fade-in 0.5s ease-out both",
+        float: "float 6s ease-in-out infinite",
+        shimmer: "shimmer 1.6s infinite",
       },
     },
   },

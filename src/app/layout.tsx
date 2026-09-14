@@ -22,7 +22,13 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className="min-h-screen flex flex-col bg-[#FDFBF7] text-foreground antialiased">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="min-h-screen flex flex-col bg-[#FDFBF7] font-sans text-foreground antialiased selection:bg-[#C9A96A]/20">
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
