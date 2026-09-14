@@ -6,7 +6,8 @@ async function main() {
   const pwOwner = await bcrypt.hash("owner123", 10);
   const pwMember = await bcrypt.hash("member123", 10);
 
-  // cleanup previous seed (idempotent)
+  // cleanup previous seed (idempotent) — order FK-safe
+  await prisma.marketplaceOrder.deleteMany({});
   await prisma.payment.deleteMany({});
   await prisma.booking.deleteMany({});
   await prisma.chatMessage.deleteMany({});

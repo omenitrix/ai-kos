@@ -44,6 +44,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
 export const authOptions: NextAuthOptions = {
   providers,
+  secret: (process.env as any)["NEXTAUTH_SECRET"],
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }: any) {
