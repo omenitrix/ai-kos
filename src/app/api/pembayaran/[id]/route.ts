@@ -1,44 +1,69 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { createSupabaseService } from "@/lib/supabase/server";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: { params: { id: string } }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const payment = await prisma.payment.findUnique({ where: { id: params.id }, include: { booking: { include: { kos: true, kamar: true } }, payer: { select: { id: true, name: true, email: true, photo: true } } } });
-  if (!payment) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const supa = createSupabaseService();
+  const { data: payment, error } = await supa.from("payments").select("*").eq("id", params.id).single();
+  if (error || !payment) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const { data: booking } = await supa.from("bookings").select("*").eq("id", payment.bookingId).single();
+  if (!booking) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const [kosRes, kamarRes, payerRes] = await Promise.all([
+    supa.from("kos_listings").select("*").eq("id", booking.kosId).single(),
+    supa.from("kamars").select("*").eq("id", booking.kamarId).single(),
+    supa.from("users").select("id,name,email,photo").eq("id", payment.payerId).single(),
+  ]);
+
+  const kos = kosRes.data || null;
+  const kamar = kamarRes.data || null;
+  const payer = payerRes.data || null;
+
   const role = (session.user as any).role;
   const userId = (session.user as any).id;
-  if (role !== "ADMIN" && payment.payerId !== userId && payment.booking.kos.ownerId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  return NextResponse.json(payment);
+  if (role !== "ADMIN" && payment.payerId !== userId && kos?.ownerId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  return NextResponse.json({ ...payment, booking: { ...booking, kos, kamar }, payer });
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  // only admin can verify payment (manual) or we could have webhook from gateway
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const role = (session.user as any).role;
   if (role !== "ADMIN") return NextResponse.json({ error: "Only admin can verify payment" }, { status: 403 });
-  const body = await req.json();
-  const payment = await prisma.payment.findUnique({ where: { id: params.id } });
+
+  const supa = createSupabaseService();
+  const { data: payment } = await supa.from("payments").select("*").eq("id", params.id).single();
   if (!payment) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  const updated = await prisma.payment.update({ where: { id: params.id }, data: { status: body.status, verifiedAt: body.status === "SUCCESS" ? new Date() : null } });
-  // if payment success, update booking status to ACTIVE
+
+  const body = await req.json();
+  const updateData: any = { status: body.status };
+  updateData.verifiedAt = body.status === "SUCCESS" ? new Date().toISOString() : null;
+
+  const { data: updated, error } = await supa.from("payments").update(updateData).eq("id", params.id).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
   if (body.status === "SUCCESS") {
-    await prisma.booking.update({ where: { id: payment.bookingId }, data: { status: "ACTIVE" } });
+    await supa.from("bookings").update({ status: "ACTIVE" }).eq("id", payment.bookingId);
   }
   return NextResponse.json(updated);
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
-  // upload bukti bayar (mock)
+export async function POST(_req: Request, { params }: { params: { id: string } }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const payment = await prisma.payment.findUnique({ where: { id: params.id } });
+  const supa = createSupabaseService();
+  const { data: payment } = await supa.from("payments").select("*").eq("id", params.id).single();
   if (!payment) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const userId = (session.user as any).id;
   if (payment.payerId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  // In real app, we would handle file upload here; for mock we just update a flag
-  const updated = await prisma.payment.update({ where: { id: params.id }, data: { buktiBayar: "mock-upload-url" } });
+
+  const { data: updated, error } = await supa.from("payments").update({ buktiBayar: "mock-upload-url" }).eq("id", params.id).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(updated);
 }

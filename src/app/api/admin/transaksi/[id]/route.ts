@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { createSupabaseService } from "@/lib/supabase/server";
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const session = await getSession();
@@ -9,10 +9,21 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   const body = await req.json();
   const status = body.status;
   if (!["PENDING","SUCCESS","FAILED","REFUNDED"].includes(status)) return NextResponse.json({ error: "Status tidak valid" }, { status: 400 });
-  const updated = await prisma.payment.update({
-    where: { id: params.id },
-    data: { status, verifiedAt: status==="SUCCESS" ? new Date() : null },
-    include: { booking: { include: { kos: { select: { nama:true, slug:true } }, kamar: true } }, payer: { select: { email:true, name:true } } },
-  });
-  return NextResponse.json(updated);
+  const supabase = createSupabaseService();
+  const { data: existing } = await supabase.from("payments").select("id").eq("id", params.id).maybeSingle();
+  if (!existing) return NextResponse.json({ error: "Payment not found" }, { status: 404 });
+  const { data: updated, error } = await supabase.from("payments").update({ status, verifiedAt: status === "SUCCESS" ? new Date().toISOString() : null, updatedAt: new Date().toISOString() }).eq("id", params.id).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // enrich with booking/kos/kamar/payer like before
+  const { data: booking } = await supabase.from("bookings").select("*").eq("id", (updated as any).bookingId).maybeSingle();
+  let kos = null, kamar = null;
+  if (booking) {
+    const [kosRes, kamarRes] = await Promise.all([
+      supabase.from("kos_listings").select("nama,slug").eq("id", (booking as any).kosId).maybeSingle().then(r=>r.data),
+      supabase.from("kamars").select("*").eq("id", (booking as any).kamarId).maybeSingle().then(r=>r.data),
+    ]);
+    kos = kosRes; kamar = kamarRes;
+  }
+  const { data: payer } = await supabase.from("users").select("email,name").eq("id", (updated as any).payerId).maybeSingle();
+  return NextResponse.json({ ...updated, booking: booking ? { ...booking, kos, kamar } : null, payer });
 }

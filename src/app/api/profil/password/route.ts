@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { createSupabaseService } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -16,12 +16,15 @@ export async function POST(req: Request) {
   if (newPassword.length < 6) return NextResponse.json({ error: "Password baru minimal 6 karakter" }, { status: 400 });
   if (newPassword !== confirmPassword) return NextResponse.json({ error: "Konfirmasi password tidak cocok" }, { status: 400 });
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user || !user.passwordHash) return NextResponse.json({ error: "Akun ini tidak pakai password (Google login?)" }, { status: 400 });
-  const ok = await bcrypt.compare(currentPassword, user.passwordHash);
+  const sb = createSupabaseService();
+  const { data: user, error } = await sb.from("users").select("*").eq("id", userId).maybeSingle();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!user || !(user as any).passwordHash) return NextResponse.json({ error: "Akun ini tidak pakai password (Google login?)" }, { status: 400 });
+  const ok = await bcrypt.compare(currentPassword, (user as any).passwordHash);
   if (!ok) return NextResponse.json({ error: "Password lama salah bro" }, { status: 400 });
 
   const hash = await bcrypt.hash(newPassword, 10);
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash: hash } });
+  const { error: updErr } = await sb.from("users").update({ passwordHash: hash } as any).eq("id", userId);
+  if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
   return NextResponse.json({ success: true, message: "Password berhasil diganti" });
 }

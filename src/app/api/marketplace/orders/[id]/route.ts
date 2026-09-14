@@ -1,36 +1,47 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { createSupabaseService } from "@/lib/supabase/server";
 
-const ALLOWED = ["PENDING","CONFIRMED","PROCESSING","COMPLETED","CANCELLED","REFUNDED"] as const;
+const ALLOWED = ["PENDING", "CONFIRMED", "PROCESSING", "COMPLETED", "CANCELLED", "REFUNDED"] as const;
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const role = (session.user as any).role;
   const userId = (session.user as any).id;
-  const order = await prisma.marketplaceOrder.findUnique({ where: { id: params.id }, include: { service: true } });
-  if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const supa = createSupabaseService();
 
-  // buyer boleh cancel sendiri kalau masih PENDING
+  const { data: order, error: orderErr } = await supa.from("marketplace_orders").select("*").eq("id", params.id).single();
+  if (orderErr || !order) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const { data: service } = await supa.from("marketplace_services").select("*").eq("id", order.serviceId).single();
+  const orderWithService = { ...order, service } as any;
+
   const body = await req.json();
   const newStatus = body.status;
   if (!ALLOWED.includes(newStatus)) return NextResponse.json({ error: "Status tidak valid" }, { status: 400 });
 
   if (role === "ADMIN") {
-    // admin bebas semua
+    // admin can do anything
   } else if (role === "OWNER") {
-    // owner hanya untuk layanan kos miliknya
-    if (!order.service.kosId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    const kos = await prisma.kosListing.findUnique({ where: { id: order.service.kosId } });
+    if (!service?.kosId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const { data: kos } = await supa.from("kos_listings").select("id,ownerId").eq("id", service.kosId).single();
     if (!kos || kos.ownerId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    // owner tidak boleh REFUNDED kalau bukan admin? boleh tapi batasi — allow
   } else {
-    // member/guest — hanya boleh CANCELLED dari PENDING, atau pemilik order
     if (order.buyerId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    if (!(order.status==="PENDING" && newStatus==="CANCELLED")) return NextResponse.json({ error: "Kamu hanya bisa membatalkan pesanan yang masih pending" }, { status: 403 });
+    if (!(order.status === "PENDING" && newStatus === "CANCELLED")) {
+      return NextResponse.json({ error: "Kamu hanya bisa membatalkan pesanan yang masih pending" }, { status: 403 });
+    }
   }
 
-  const updated = await prisma.marketplaceOrder.update({ where: { id: params.id }, data: { status: newStatus }, include: { service: true, buyer: { select: { email:true, name:true } } } });
-  return NextResponse.json(updated);
+  const { data: updated, error } = await supa.from("marketplace_orders").update({ status: newStatus }).eq("id", params.id).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // enrich response like prisma: include service + buyer
+  const [{ data: svc2 }, { data: buyer }] = await Promise.all([
+    supa.from("marketplace_services").select("*").eq("id", updated.serviceId).single(),
+    supa.from("users").select("id,email,name").eq("id", updated.buyerId).single(),
+  ]);
+
+  return NextResponse.json({ ...updated, service: svc2 || service, buyer: buyer || null });
 }

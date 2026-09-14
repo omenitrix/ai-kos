@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { createSupabaseService } from "@/lib/supabase/server";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const promo = await prisma.promo.findUnique({ where: { id: params.id }, include: { kos: { select: { nama: true, slug: true } } } });
-  if (!promo) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(promo);
+  const supa = createSupabaseService();
+  const { data, error } = await supa.from("promos").select("*, kos:kos_listings!promos_kosId_fkey(nama,slug)").eq("id", params.id).single();
+  if (error || !data) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json(data);
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
@@ -13,15 +14,17 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const role = (session.user as any).role;
   if (role !== "OWNER" && role !== "ADMIN") return NextResponse.json({ error: "Only owner/admin can update promo" }, { status: 403 });
-  const promo = await prisma.promo.findUnique({ where: { id: params.id } });
+  const supa = createSupabaseService();
+  const { data: promo } = await supa.from("promos").select("*").eq("id", params.id).single();
   if (!promo) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (promo.kosId) {
-    const kos = await prisma.kosListing.findUnique({ where: { id: promo.kosId } });
+    const { data: kos } = await supa.from("kos_listings").select("*").eq("id", promo.kosId).single();
     if (kos && role !== "ADMIN" && kos.ownerId !== (session.user as any).id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const body = await req.json();
-  const updated = await prisma.promo.update({ where: { id: params.id }, data: body });
-  return NextResponse.json(updated);
+  const { data, error } = await supa.from("promos").update(body).eq("id", params.id).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {

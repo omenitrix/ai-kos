@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { createSupabaseService } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const kosId = searchParams.get("kosId");
-  const where = kosId ? { kosId, isActive: true } : { isActive: true };
-  const items = await prisma.marketplaceService.findMany({ where, include: { kos: { select: { nama: true, slug: true } } } });
-  return NextResponse.json(items);
+  const supa = createSupabaseService();
+  let q = supa.from("marketplace_services").select("*, kos:kos_listings!marketplace_services_kosId_fkey(nama,slug)").eq("isActive", true);
+  if (kosId) q = q.eq("kosId", kosId);
+  const { data, error } = await q;
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
 }
 
 export async function POST(req: Request) {
@@ -17,9 +20,11 @@ export async function POST(req: Request) {
   if (role !== "OWNER" && role !== "ADMIN") return NextResponse.json({ error: "Only owner/admin can create marketplace item" }, { status: 403 });
   const body = await req.json();
   if (!body.kosId) return NextResponse.json({ error: "kosId required" }, { status: 400 });
-  const kos = await prisma.kosListing.findUnique({ where: { id: body.kosId } });
+  const supa = createSupabaseService();
+  const { data: kos } = await supa.from("kos_listings").select("*").eq("id", body.kosId).single();
   if (!kos) return NextResponse.json({ error: "Kos not found" }, { status: 404 });
   if (role !== "ADMIN" && kos.ownerId !== (session.user as any).id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  const item = await prisma.marketplaceService.create({ data: { ...body, kosId: body.kosId } });
-  return NextResponse.json(item);
+  const { data, error } = await supa.from("marketplace_services").insert({ ...body, kosId: body.kosId }).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
 }

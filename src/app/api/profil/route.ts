@@ -1,23 +1,29 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createSupabaseService } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth";
+
+function pickUser(u: any) {
+  if (!u) return null;
+  const { id, name, username, email, phone, photo, role, isVerified, isSuspended, createdAt } = u;
+  return { id, name, username, email, phone, photo, role, isVerified, isSuspended, createdAt };
+}
 
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const userId = (session.user as any).id;
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id:true, name:true, username:true, email:true, phone:true, photo:true, role:true, isVerified:true, isSuspended:true, createdAt:true },
-  });
+  const sb = createSupabaseService();
+  const { data: user, error } = await sb.from("users").select("*").eq("id", userId).maybeSingle();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(user);
+  return NextResponse.json(pickUser(user));
 }
 
 export async function PATCH(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const userId = (session.user as any).id;
+  const sb = createSupabaseService();
   const body = await req.json();
   const data: any = {};
   if (typeof body.name === "string") data.name = body.name.trim() || null;
@@ -25,26 +31,27 @@ export async function PATCH(req: Request) {
     const u = body.username.trim();
     if (u) {
       if (u.length < 3) return NextResponse.json({ error: "Username minimal 3 karakter" }, { status: 400 });
-      const exists = await prisma.user.findFirst({ where: { username: u, NOT: { id: userId } } });
+      const { data: exists } = await sb.from("users").select("id").eq("username", u).neq("id", userId).maybeSingle();
       if (exists) return NextResponse.json({ error: "Username sudah dipakai" }, { status: 400 });
       data.username = u;
     } else data.username = null;
   }
   if (typeof body.phone === "string") data.phone = body.phone.trim() || null;
   if (typeof body.photo === "string") data.photo = body.photo.trim() || null;
-  // email tidak bisa ganti sembarang — hanya jika belum verifikasi conflict check
   if (typeof body.email === "string") {
     const email = body.email.trim().toLowerCase();
     if (email && email !== (session.user as any).email) {
-      const exists = await prisma.user.findUnique({ where: { email } });
+      const { data: exists } = await sb.from("users").select("id").eq("email", email).maybeSingle();
       if (exists) return NextResponse.json({ error: "Email sudah dipakai" }, { status: 400 });
       data.email = email;
     }
   }
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data,
-    select: { id:true, name:true, username:true, email:true, phone:true, photo:true, role:true, isVerified:true, createdAt:true },
-  });
-  return NextResponse.json(updated);
+  if (!Object.keys(data).length) {
+    const { data: cur } = await sb.from("users").select("*").eq("id", userId).maybeSingle();
+    return NextResponse.json(pickUser(cur));
+  }
+  const { data: updated, error } = await sb.from("users").update(data).eq("id", userId).select("*").single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const { id, name, username, email, phone, photo, role, isVerified, createdAt } = updated as any;
+  return NextResponse.json({ id, name, username, email, phone, photo, role, isVerified, createdAt });
 }
