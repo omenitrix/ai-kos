@@ -37,7 +37,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   const { data: updated, error } = await supa.from("marketplace_orders").update({ status: newStatus }).eq("id", params.id).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // enrich response like prisma: include service + buyer
+  // enrich response: include service + buyer
   const [{ data: svc2 }, { data: buyer }] = await Promise.all([
     supa.from("marketplace_services").select("*").eq("id", updated.serviceId).single(),
     supa.from("users").select("id,email,name").eq("id", updated.buyerId).single(),

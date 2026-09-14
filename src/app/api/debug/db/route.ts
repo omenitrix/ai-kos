@@ -6,7 +6,7 @@ export async function GET() {
     const supa = createSupabaseService();
     const { data: users, count } = await supa.from("users").select("email,role", { count: "exact" });
     const { count: kos } = await supa.from("kos_listings").select("id", { count: "exact", head: true });
-    return NextResponse.json({ ok: true, users, kos, count, source: "supabase", env: { hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL, hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY, hasDbUrl: !!process.env.DATABASE_URL, hasSecret: !!process.env.NEXTAUTH_SECRET } });
+    return NextResponse.json({ ok: true, users, kos, count, source: "supabase", env: { hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL, hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY, hasSecret: !!process.env.NEXTAUTH_SECRET } });
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e.message }, { status: 500 });
   }

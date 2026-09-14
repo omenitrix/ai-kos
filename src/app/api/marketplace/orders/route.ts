@@ -87,6 +87,6 @@ export async function POST(req: Request) {
     .single();
   if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 });
 
-  // include service like prisma did
+  // include service
   return NextResponse.json({ ...order, service: svc });
 }

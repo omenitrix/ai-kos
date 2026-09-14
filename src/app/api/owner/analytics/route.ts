@@ -65,7 +65,7 @@ export async function GET() {
       promosByKos.set(pr.kosId, arr);
     }
 
-    // build kosList enriched like prisma include
+    // build enriched kosList
     const kosList = kosListRows.map((k: any) => ({
       ...k,
       kamar: kamarByKos.get(k.id) || [],

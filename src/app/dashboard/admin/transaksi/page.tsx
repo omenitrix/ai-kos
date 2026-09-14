@@ -46,7 +46,7 @@ export default function AdminTransaksi() {
   };
   const reset = async()=>{
     if (!confirm("Hapus semua payment mock? marketplace orders tetap.")) return;
-    // simple: delete via prisma? buat endpoint hapus pending saja tidak — warning
+    // hapus pending: warning
     setMsg("Gunakan Prisma Studio / DB manual untuk hapus bulk — mock aman dihapus.");
   };
 

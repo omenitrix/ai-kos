@@ -27,7 +27,7 @@ export async function GET(req: Request) {
       return (!minPrice || min >= +minPrice) && (!maxPrice || min <= +maxPrice);
     });
   }
-  // normalize: prisma returned .kamar, supabase returns .kamars -> alias
+  // supabase returns .kamars -> alias as .kamar
   const mapped = result.map((l:any)=>({ ...l, kamar: l.kamars || [] }));
   return NextResponse.json(mapped);
 }

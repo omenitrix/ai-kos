@@ -2,9 +2,4 @@ node_modules
 .next
 .env
 .env.local
-prisma/migrations
-.agents/
-.claude/
-.cursor/
-.devin/
 tsconfig.tsbuildinfo
