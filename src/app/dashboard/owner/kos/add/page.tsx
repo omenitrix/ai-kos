@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 export default function AddKosStep1() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [form, setForm] = useState({ nama: "", alamat: "", deskripsi: "" });
+  const [form, setForm] = useState({ nama: "", alamat: "", deskripsi: "", fotoSampul: "", fotoList: [] as string[] });
   const [kosId, setKosId] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [msg, setMsg] = useState("");
@@ -124,6 +125,11 @@ export default function AddKosStep1() {
             <div>
               <Label>Deskripsi (opsional)</Label>
               <Textarea value={form.deskripsi} onChange={(e)=>setForm({...form, deskripsi:e.target.value})} placeholder="Fasilitas, lingkungan, dsb." />
+            </div>
+            <div>
+              <Label>Foto Sampul</Label>
+              <ImageUpload label="Upload foto sampul" bucket="kos" onUploaded={(url)=>setForm((s)=>({ ...s, fotoSampul: url, fotoList: [url] }))} />
+              {form.fotoSampul && <p className="mt-1 text-xs text-green-700 truncate">✓ {form.fotoSampul}</p>}
             </div>
             <Button type="submit" disabled={loading} className="w-full rounded-full bg-[#C9A96A] hover:bg-[#B8944F] text-white">
               {loading ? "Menyimpan..." : "Simpan & Lanjutkan →"}
