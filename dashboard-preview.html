@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A96A;--cream:#FDFBF7;--line:#EDE6D6;--ink:#1C1610;--muted:#8A7D6B}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#FDFBF7;color:#1C1610}
+.serif{font-family:'Playfair Display',Georgia,serif}
+.shadow-soft{box-shadow:0 8px 32px rgba(28,22,16,.06)}
+.shadow-soft-lg{box-shadow:0 16px 48px rgba(28,22,16,.08)}
+</style>
+</head>
+<body class="min-h-screen">
+<!-- top bar -->
+<div class="sticky top-0 z-10 bg-[#FDFBF7]/80 backdrop-blur border-b border-[#EDE6D6]">
+  <div class="mx-auto max-w-[1180px] px-6 h-[52px] flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <img src="/logo.jpg" onerror="this.style.display='none'" class="h-8 w-8 rounded-xl border border-[#EDE6D6] object-cover">
+      <span class="serif text-[17px] tracking-tight"><span class="text-[#C9A96A]">AI</span>-KOS</span>
+      <span class="hidden md:inline text-[10px] tracking-[0.18em] uppercase text-[#B8A99A] border-l border-[#EDE6D6] pl-3 ml-1">Dashboard</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:inline text-xs text-[#8A7D6B]">Rabu, 12 Sep 2026</span>
+      <span class="h-7 w-7 rounded-full bg-[#1C1610] text-white grid place-items-center text-xs">O</span>
+    </div>
+  </div>
+</div>
+
+<div class="mx-auto max-w-[1180px] px-4 md:px-6 py-6 flex gap-6">
+  <!-- sidebar mock -->
+  <aside class="hidden lg:flex w-[240px] shrink-0 flex-col gap-4">
+    <div class="rounded-2xl bg-white border border-[#EDE6D6] p-3 shadow-soft flex items-center gap-3">
+      <div class="h-9 w-9 rounded-xl bg-[#FDFBF7] border border-[#EDE6D6] grid place-items-center text-[#C9A96A]">⌖</div>
+      <div><div class="text-sm font-semibold">Owner Demo</div><div class="text-[11px] text-[#8A7D6B]">owner@ai-kos.test • Owner</div></div>
+    </div>
+    <div class="rounded-2xl bg-white border border-[#EDE6D6] p-3 shadow-soft space-y-1">
+      <div class="text-[10px] tracking-[0.16em] uppercase text-[#B8A99A] px-2 mb-1">Menu</div>
+      <div class="rounded-xl bg-[#1C1610] text-white px-3 py-2 text-sm">◉ Dashboard</div>
+      <div class="px-3 py-2 text-sm text-[#6B5E4F]">▭ Kos Saya</div>
+      <div class="px-3 py-2 text-sm text-[#6B5E4F]">＋ Tambah Kos</div>
+      <div class="px-3 py-2 text-sm text-[#6B5E4F]">◎ Promosi</div>
+      <div class="px-3 py-2 text-sm text-[#6B5E4F]">◇ Marketplace</div>
+    </div>
+    <div class="rounded-2xl bg-gradient-to-br from-[#1C1610] to-[#2C2416] p-4 text-white border border-[#3A2E1E]">
+      <div class="text-sm font-medium text-[#C9A96A]">✦ AI Concierge</div>
+      <div class="text-xs text-[#E8DCC8] mt-1 leading-relaxed">Okupansi turun 12% minggu ini — turunkan harga A-02 Rp50rb?</div>
+    </div>
+  </aside>
+
+  <!-- main -->
+  <main class="flex-1 min-w-0 space-y-5">
+    <!-- header -->
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="serif text-[26px] md:text-[30px] leading-none">Selamat pagi, Owner <span class="text-[#C9A96A]">—</span></h1>
+        <p class="text-sm text-[#8A7D6B] mt-1">Ringkasan sistem hari ini • 2 kos • 4 kamar • update real-time</p>
+      </div>
+      <div class="flex gap-2">
+        <a class="rounded-full bg-[#1C1610] text-white px-5 py-2.5 text-sm font-medium">+ Tambah Kos</a>
+        <a class="rounded-full bg-white border border-[#E8DCC8] px-5 py-2.5 text-sm font-medium">Lihat Kos</a>
+      </div>
+    </div>
+
+    <!-- KPI 4 compact -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="rounded-2xl bg-white border border-[#EDE6D6] p-4 shadow-soft">
+        <div class="flex items-center justify-between"><span class="h-8 w-8 rounded-xl bg-[#FDFBF7] border border-[#EDE6D6] grid place-items-center text-[#C9A96A] text-sm">▭</span><span class="text-[11px] tracking-widest uppercase text-[#2E7D32] bg-[#EAF6EC] border border-[#C8E6C9] rounded-full px-2 py-0.5">+2 bulan ini</span></div>
+        <div class="serif text-[28px] leading-none mt-3">12</div>
+        <div class="text-xs text-[#8A7D6B]">Total Kos Aktif</div>
+        <div class="mt-2 h-1 rounded-full bg-[#F5F0E8]"><div class="h-1 w-[78%] rounded-full bg-[#C9A96A]"></div></div>
+      </div>
+      <div class="rounded-2xl bg-white border border-[#EDE6D6] p-4 shadow-soft">
+        <div class="flex items-center justify-between"><span class="h-8 w-8 rounded-xl bg-[#FDFBF7] border border-[#EDE6D6] grid place-items-center text-[#C9A96A]">◐</span><span class="text-xs font-semibold text-[#C9A96A]">86% terisi</span></div>
+        <div class="serif text-[28px] leading-none mt-3">31<span class="text-lg text-[#8A7D6B]">/36</span></div>
+        <div class="text-xs text-[#8A7D6B]">Kamar Terisi • 5 kosong</div>
+        <div class="mt-2 flex gap-1"><span class="h-1.5 flex-1 rounded-full bg-[#1C1610]"></span><span class="h-1.5 flex-1 rounded-full bg-[#1C1610]"></span><span class="h-1.5 flex-1 rounded-full bg-[#1C1610]"></span><span class="h-1.5 flex-1 rounded-full bg-[#EDE6D6]"></span></div>
+      </div>
+      <div class="rounded-2xl bg-gradient-to-br from-[#1C1610] to-[#2C2416] border border-[#3A2E1E] p-4 text-white shadow-soft-lg">
+        <div class="flex items-center justify-between"><span class="h-8 w-8 rounded-xl bg-white/10 border border-white/15 grid place-items-center text-[#C9A96A]">₿</span><span class="text-[11px] tracking-widest uppercase text-[#E8DCC8]">Pendapatan</span></div>
+        <div class="serif text-[22px] mt-3">Rp 48,2 <span class="text-sm font-sans">jt</span></div>
+        <div class="text-xs text-[#E8DCC8]">Bulan ini • +14% vs lalu</div>
+        <div class="mt-2 text-[11px] text-[#C9A96A]">↗ Prediksi Rp 52jt bulan depan</div>
+      </div>
+      <div class="rounded-2xl bg-white border border-[#EDE6D6] p-4 shadow-soft">
+        <div class="flex items-center justify-between"><span class="h-8 w-8 rounded-xl bg-[#FDFBF7] border border-[#EDE6D6] grid place-items-center text-[#C9A96A]">◎</span><span class="text-[11px] rounded-full bg-[#FFF3E0] border border-[#FFE0B2] px-2 py-0.5 text-[#8A6D1E]">8 pending</span></div>
+        <div class="serif text-[28px] leading-none mt-3">8</div>
+        <div class="text-xs text-[#8A7D6B]">Booking Masuk</div>
+        <div class="mt-2 text-xs text-[#C9A96A] font-medium">3 perlu approval →</div>
+      </div>
+    </div>
+
+    <!-- row 2: chart + donut -->
+    <div class="grid lg:grid-cols-3 gap-3">
+      <div class="lg:col-span-2 rounded-2xl bg-white border border-[#EDE6D6] p-5 shadow-soft">
+        <div class="flex items-center justify-between">
+          <div><div class="text-sm font-semibold">Pendapatan 7 hari</div><div class="text-xs text-[#8A7D6B]">Mock — nanti dari /api/admin/analytics</div></div>
+          <span class="text-xs rounded-full border border-[#EDE6D6] bg-[#FDFBF7] px-3 py-1">Harian</span>
+        </div>
+        <div class="mt-4 h-[128px] flex items-end gap-2">
+          <div class="flex-1 rounded-t-xl bg-[#F5F0E8] border border-[#EDE6D6] relative" style="height:42%"><div class="absolute bottom-0 w-full rounded-t-xl bg-[#C9A96A]" style="height:70%"></div></div>
+          <div class="flex-1 rounded-t-xl bg-[#F5F0E8] border border-[#EDE6D6] relative" style="height:58%"><div class="absolute bottom-0 w-full rounded-t-xl bg-[#C9A96A]" style="height:80%"></div></div>
+          <div class="flex-1 rounded-t-xl bg-[#F5F0E8] border border-[#EDE6D6] relative" style="height:66%"><div class="absolute bottom-0 w-full rounded-t-xl bg-[#1C1610]" style="height:92%"></div></div>
+          <div class="flex-1 rounded-t-xl bg-[#F5F0E8] border border-[#EDE6D6] relative" style="height:48%"><div class="absolute bottom-0 w-full rounded-t-xl bg-[#C9A96A]" style="height:62%"></div></div>
+          <div class="flex-1 rounded-t-xl bg-[#F5F0E8] border border-[#EDE6D6] relative" style="height:72%"><div class="absolute bottom-0 w-full rounded-t-xl bg-[#C9A96A]" style="height:88%"></div></div>
+          <div class="flex-1 rounded-t-xl bg-[#F5F0E8] border border-[#EDE6D6] relative" style="height:80%"><div class="absolute bottom-0 w-full rounded-t-xl bg-[#C9A96A]" style="height:96%"></div></div>
+          <div class="flex-1 rounded-t-xl bg-[#F5F0E8] border border-[#EDE6D6] relative" style="height:54%"><div class="absolute bottom-0 w-full rounded-t-xl bg-[#C9A96A]" style="height:66%"></div></div>
+        </div>
+        <div class="mt-2 flex justify-between text-[11px] text-[#B8A99A]"><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span></div>
+      </div>
+      <div class="rounded-2xl bg-white border border-[#EDE6D6] p-5 shadow-soft">
+        <div class="text-sm font-semibold">Okupansi</div>
+        <div class="mt-4 flex items-center gap-4">
+          <div class="h-[110px] w-[110px] rounded-full border-[10px] border-[#F5F0E8] relative grid place-items-center" style="border-top-color:#C9A96A;border-right-color:#1C1610;border-bottom-color:#C9A96A">
+            <span class="serif text-xl">86%</span>
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-[#1C1610]"></span> Terisi 31</div>
+            <div class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-[#C9A96A]"></span> Kosong 5</div>
+            <div class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-[#EDE6D6]"></span> Maintenance 0</div>
+          </div>
+        </div>
+        <div class="mt-4 rounded-xl bg-[#FDFBF7] border border-[#EDE6D6] p-3 text-xs leading-relaxed text-[#6B5E4F]">💡 <b class="text-[#1C1610]">AI Insight:</b> 3 kamar kosong >14 hari di Sentosa — coba promo 10% 3 hari.</div>
+      </div>
+    </div>
+
+    <!-- row 3: table + side -->
+    <div class="grid lg:grid-cols-3 gap-3">
+      <div class="lg:col-span-2 rounded-2xl bg-white border border-[#EDE6D6] shadow-soft overflow-hidden">
+        <div class="p-4 flex items-center justify-between border-b border-[#F5F0E8]"><div class="text-sm font-semibold">Booking terbaru</div><a class="text-xs font-medium text-[#C9A96A]">Lihat semua →</a></div>
+        <div class="divide-y divide-[#F5F0E8] text-sm">
+          <div class="p-3 flex items-center gap-3"><img src="https://picsum.photos/seed/kos1/80/80" class="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]"><div class="flex-1 min-w-0"><div class="font-medium truncate">Kos Aman Sentosa — A-02</div><div class="text-xs text-[#8A7D6B]">Rina • 12 Sep • Rp1.500.000</div></div><span class="rounded-full bg-[#FFF3E0] border border-[#FFE0B2] px-2.5 py-1 text-xs">Pending</span></div>
+          <div class="p-3 flex items-center gap-3"><img src="https://picsum.photos/seed/kos2/80/80" class="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]"><div class="flex-1 min-w-0"><div class="font-medium truncate">Kos Elite Cempaka — C-01</div><div class="text-xs text-[#8A7D6B]">Budi • 11 Sep • Rp2.200.000</div></div><span class="rounded-full bg-[#EAF6EC] border border-[#C8E6C9] px-2.5 py-1 text-xs">Paid</span></div>
+          <div class="p-3 flex items-center gap-3"><img src="https://picsum.photos/seed/kos3/80/80" class="h-10 w-10 rounded-xl object-cover border border-[#EDE6D6]"><div class="flex-1 min-w-0"><div class="font-medium truncate">Kos Aman Sentosa — B-01</div><div class="text-xs text-[#8A7D6B]">Sinta • 10 Sep • Rp1.200.000</div></div><span class="rounded-full bg-[#EAF6EC] border border-[#C8E6C9] px-2.5 py-1 text-xs">Active</span></div>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div class="rounded-2xl bg-white border border-[#EDE6D6] p-4 shadow-soft">
+          <div class="text-sm font-semibold">Aksi cepat</div>
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <a class="rounded-xl bg-[#1C1610] text-white p-3 text-xs font-medium text-center">+ Kos</a>
+            <a class="rounded-xl bg-white border border-[#E8DCC8] p-3 text-xs font-medium text-center">Promo</a>
+            <a class="rounded-xl bg-white border border-[#E8DCC8] p-3 text-xs font-medium text-center">Chat</a>
+            <a class="rounded-xl bg-white border border-[#E8DCC8] p-3 text-xs font-medium text-center">Laporan</a>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-[#EDE6D6] p-4 shadow-soft">
+          <div class="text-sm font-semibold">Status sistem</div>
+          <div class="mt-3 space-y-2 text-xs">
+            <div class="flex justify-between"><span class="text-[#8A7D6B]">Payment gateway</span><span class="text-[#2E7D32] font-medium">● Mock OK</span></div>
+            <div class="flex justify-between"><span class="text-[#8A7D6B]">Storage</span><span class="text-[#2E7D32] font-medium">● Mock OK</span></div>
+            <div class="flex justify-between"><span class="text-[#8A7D6B]">AI Provider</span><span class="text-[#8A7D6B] font-medium">● Mock</span></div>
+            <div class="flex justify-between"><span class="text-[#8A7D6B]">Database</span><span class="text-[#2E7D32] font-medium">● 4 users / 2 kos</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center text-[11px] tracking-widest uppercase text-[#B8A99A]">Preview — compact • elegan • krem/emas • shadow lembut</p>
+  </main>
+</div>
+</body>
+</html>

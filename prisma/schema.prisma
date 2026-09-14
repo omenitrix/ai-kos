@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GUEST
+  MEMBER
+  OWNER
+  ADMIN
+}
+
+enum KosStatus {
+  AKTIF
+  NONAKTIF
+  PENDING_APPROVAL
+}
+
+enum BookingStatus {
+  DRAFT
+  PENDING_PAYMENT
+  ACTIVE
+  SELESAI
+  DIBATALKAN
+}
+
+enum PaymentMethod {
+  TRANSFER_BANK
+  E_WALLET
+  QRIS
+  VIRTUAL_ACCOUNT
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum MarketplaceCategory {
+  FURNITURE
+  CLEANING
+  LAUNDRY
+  TEKNISI
+  INTERNET
+  CATERING
+  LAINNYA
+}
+
+enum VerificationType {
+  KTP
+  SELFIE
+  EMAIL
+  PHONE
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MarketplaceOrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  username     String?  @unique
+  email        String   @unique
+  emailVerified DateTime?
+  passwordHash String?
+  phone        String?
+  photo        String?
+  role         Role     @default(GUEST)
+  isVerified   Boolean  @default(false)
+  otpCode      String?
+  otpExpiry    DateTime?
+  isSuspended  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedKos     KosListing[] @relation("OwnerKos")
+  bookings     Booking[]    @relation("PenyewaBooking")
+  payments     Payment[]    @relation("PayerPayment")
+  marketplaceOrders MarketplaceOrder[] @relation("BuyerOrders")
+  verifications Verification[]
+  adminLogs    AdminLog[]   @relation("AdminLogActor")
+  chatMessages ChatMessage[]
+
+  @@map("users")
+}
+
+model KosListing {
+  id          String    @id @default(cuid())
+  ownerId     String
+  owner       User      @relation("OwnerKos", fields: [ownerId], references: [id])
+  nama        String
+  slug        String    @unique
+  deskripsi   String?   @db.Text
+  alamat      String
+  latitude    Float?
+  longitude   Float?
+  fotoSampul  String?
+  fotoList    String[]  @default([])
+  video       String?
+  status      KosStatus @default(PENDING_APPROVAL)
+  isFeatured  Boolean   @default(false)
+  genderType  String?   @default("CAMPUR")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  kamar       Kamar[]
+  promos      Promo[]
+  bookings    Booking[]
+  chatThreads ChatThread[]
+  marketplace MarketplaceService[]
+
+  @@map("kos_listings")
+}
+
+model Kamar {
+  id              String  @id @default(cuid())
+  kosId           String
+  kos             KosListing @relation(fields: [kosId], references: [id], onDelete: Cascade)
+  nomor           String?
+  tipe            String?
+  luasM2          Int?
+  furnished       Boolean @default(false)
+  ac              Boolean @default(false)
+  wifi            Boolean @default(false)
+  dapur           Boolean @default(false)
+  laundry         Boolean @default(false)
+  parkiran        Boolean @default(false)
+  kamarMandiDalam Boolean @default(true)
+  hargaBulanan    Int
+  hargaTahunan    Int?
+  deposit         Int     @default(0)
+  tersedia        Boolean @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bookings        Booking[]
+
+  @@map("kamars")
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  kosId      String
+  kos        KosListing    @relation(fields: [kosId], references: [id])
+  kamarId    String
+  kamar      Kamar         @relation(fields: [kamarId], references: [id])
+  penyewaId  String
+  penyewa    User          @relation("PenyewaBooking", fields: [penyewaId], references: [id])
+  tglMulai   DateTime
+  tglSelesai DateTime?
+  durasiBulan Int          @default(1)
+  status     BookingStatus @default(DRAFT)
+  totalHarga Int
+  isBlacklisted Boolean    @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  payments   Payment[]
+
+  @@map("bookings")
+}
+
+model Payment {
+  id         String        @id @default(cuid())
+  bookingId  String
+  booking    Booking       @relation(fields: [bookingId], references: [id])
+  payerId    String
+  payer      User          @relation("PayerPayment", fields: [payerId], references: [id])
+  amount     Int
+  method     PaymentMethod @default(VIRTUAL_ACCOUNT)
+  status     PaymentStatus @default(PENDING)
+  invoiceNo  String?       @unique
+  buktiBayar String?
+  verifiedAt DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model Promo {
+  id               String   @id @default(cuid())
+  kosId            String
+  kos              KosListing @relation(fields: [kosId], references: [id], onDelete: Cascade)
+  kode             String   @unique
+  deskripsi        String?
+  diskonPersen     Int?
+  diskonNominal    Int?
+  masaBerlakuAwal  DateTime
+  masaBerlakuAkhir DateTime
+  isActive         Boolean  @default(true)
+  isFlashSale      Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  @@map("promos")
+}
+
+model MarketplaceService {
+  id        String              @id @default(cuid())
+  kosId     String?
+  kos       KosListing?         @relation(fields: [kosId], references: [id])
+  nama      String
+  deskripsi String?             @db.Text
+  harga     Int
+  stok      Int?
+  foto      String?
+  kategori  MarketplaceCategory @default(LAINNYA)
+  isActive  Boolean             @default(true)
+  createdAt DateTime            @default(now())
+
+  orders    MarketplaceOrder[]
+
+  @@map("marketplace_services")
+}
+
+model MarketplaceOrder {
+  id         String                  @id @default(cuid())
+  serviceId  String
+  service    MarketplaceService      @relation(fields: [serviceId], references: [id])
+  buyerId    String
+  buyer      User                    @relation("BuyerOrders", fields: [buyerId], references: [id])
+  qty        Int                     @default(1)
+  totalHarga Int
+  status     MarketplaceOrderStatus  @default(PENDING)
+  catatan    String?                 @db.Text
+  createdAt  DateTime                @default(now())
+  updatedAt  DateTime                @updatedAt
+
+  @@map("marketplace_orders")
+}
+
+model Verification {
+  id         String             @id @default(cuid())
+  userId     String
+  user       User               @relation(fields: [userId], references: [id])
+  type       VerificationType
+  status     VerificationStatus @default(PENDING)
+  fileUrl    String?
+  nota       String?
+  reviewedAt DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@map("verifications")
+}
+
+model ChatThread {
+  id        String   @id @default(cuid())
+  kosId     String
+  kos       KosListing @relation(fields: [kosId], references: [id])
+  memberId  String
+  ownerId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages  ChatMessage[]
+
+  @@map("chat_threads")
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  threadId  String
+  thread    ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("chat_messages")
+}
+
+model AdminLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  admin      User     @relation("AdminLogActor", fields: [adminId], references: [id])
+  action     String
+  targetId   String?
+  targetType String?
+  keterangan String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@map("admin_logs")
+}
