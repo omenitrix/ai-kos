@@ -18,6 +18,15 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { createClient } from "@supabase/supabase-js";
+
+function getSupabaseService() {
+  const env: any = process.env as any;
+  const url = env["NEXT_PUBLIC_SUPABASE_URL"] || env["SUPABASE_URL"];
+  const key = env["SUPABASE_SERVICE_ROLE_KEY"] || env["SUPABASE_SERVICE_KEY"];
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
 
 const providers: any[] = [
   CredentialsProvider({
@@ -28,12 +37,36 @@ const providers: any[] = [
     },
     async authorize(credentials) {
       if (!credentials?.email || !credentials?.password) return null;
-      const user = await prisma.user.findUnique({ where: { email: credentials.email } });
-      if (!user || !user.passwordHash) return null;
-      if (user.isSuspended) throw new Error("Akun disuspend admin");
-      const ok = await bcrypt.compare(credentials.password, user.passwordHash);
-      if (!ok) return null;
-      return { id: user.id, email: user.email, name: user.name, image: user.photo, role: user.role } as any;
+      const email = credentials.email.toLowerCase().trim();
+      const password = credentials.password;
+
+      // 1) Try Supabase first (full native) — if env set
+      const sb = getSupabaseService();
+      if (sb) {
+        const { data: user, error } = await sb.from("users").select("*").eq("email", email).single();
+        if (!error && user) {
+          if (user.isSuspended) throw new Error("Akun disuspend admin");
+          if (!user.passwordHash) return null;
+          const ok = await bcrypt.compare(password, user.passwordHash);
+          if (!ok) return null;
+          return { id: user.id, email: user.email, name: user.name, image: user.photo, role: user.role } as any;
+        }
+        // if not found in supabase, fallback to prisma (during migration)
+      }
+
+      // 2) Fallback Prisma (pooled.db.prisma.io) — keep working during hybrid phase
+      try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || !user.passwordHash) return null;
+        if ((user as any).isSuspended) throw new Error("Akun disuspend admin");
+        const ok = await bcrypt.compare(password, (user as any).passwordHash);
+        if (!ok) return null;
+        return { id: user.id, email: user.email, name: (user as any).name, image: (user as any).photo, role: (user as any).role } as any;
+      } catch (e) {
+        // if prisma fails (DATABASE_URL missing), return null -> CredentialsSignin
+        console.error("[auth] prisma fallback failed", (e as any)?.message);
+        return null;
+      }
     },
   }),
 ];
