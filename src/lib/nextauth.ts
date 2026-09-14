@@ -23,16 +23,21 @@ const providers: any[] = [
       password: { label: "Password", type: "password" },
     },
     async authorize(credentials) {
-      if (!credentials?.email || !credentials?.password) return null;
-      const email = credentials.email.toLowerCase().trim();
-      const sb = createSupabaseService();
-      const { data: user, error } = await sb.from("users").select("*").eq("email", email).single();
-      if (error || !user) return null;
-      if ((user as any).isSuspended) throw new Error("Akun disuspend admin");
-      if (!(user as any).passwordHash) return null;
-      const ok = await bcrypt.compare(credentials.password, (user as any).passwordHash);
-      if (!ok) return null;
-      return { id: (user as any).id, email: (user as any).email, name: (user as any).name, image: (user as any).photo, role: (user as any).role } as any;
+      try {
+        if (!credentials?.email || !credentials?.password) return null;
+        const email = credentials.email.toLowerCase().trim();
+        const sb = createSupabaseService();
+        const { data: user, error } = await sb.from("users").select("*").eq("email", email).single();
+        if (error || !user) return null;
+        if ((user as any).isSuspended) throw new Error("Akun disuspend admin");
+        if (!(user as any).passwordHash) return null;
+        const ok = await bcrypt.compare(credentials.password, (user as any).passwordHash);
+        if (!ok) return null;
+        return { id: (user as any).id, email: (user as any).email, name: (user as any).name, image: (user as any).photo, role: (user as any).role } as any;
+      } catch (e: any) {
+        console.error("[nextauth authorize] ", e?.message || e);
+        return null;
+      }
     },
   }),
 ];
