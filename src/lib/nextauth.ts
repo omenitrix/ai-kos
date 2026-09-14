@@ -1,3 +1,18 @@
+// Sanitize NEXTAUTH_URL before next-auth parses it — Vercel build crashes with "" (ERR_INVALID_URL)
+// Use bracket notation to avoid Next.js static inlining (process.env.X -> "literal" at build)
+function sanitizeAuthUrl() {
+  const env: any = process.env as any;
+  const raw = String(env["NEXTAUTH_URL"] || "").trim();
+  if (raw && raw.startsWith("http")) return; // ok
+  const vercel = String(env["VERCEL_URL"] || "").trim();
+  if (vercel) {
+    env["NEXTAUTH_URL"] = `https://${vercel}`;
+    return;
+  }
+  if (!raw) env["NEXTAUTH_URL"] = "http://localhost:3000";
+}
+sanitizeAuthUrl();
+
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
