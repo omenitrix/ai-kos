@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef } from "react";
 
 type KosPin = { id: string; slug: string; nama: string; alamat: string; harga: number; lat: number; lng: number };
