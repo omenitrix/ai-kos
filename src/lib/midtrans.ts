@@ -7,17 +7,14 @@ export function verifyMidtransSignature(
 ): boolean {
   if (!signature || !payload || !serverKey) return false;
   try {
-    const json = JSON.parse(payload);
-    const orderId = json.order_id || "";
-    const statusCode = json.transaction_status || "";
-    const grossAmount = json.gross_amount || "";
-    // The signature is SHA512 of order_id + status_code + gross_amount + serverKey
-    const hash = crypto
-      .createHash("sha512")
-      .update(orderId + statusCode + grossAmount + serverKey)
-      .digest("hex");
+    const j = JSON.parse(payload);
+    const orderId = String(j.order_id || "");
+    const statusCode = String(j.status_code || "");
+    const grossAmount = String(j.gross_amount || "");
+    // spec: SHA512(order_id + status_code + gross_amount + serverKey)
+    const hash = crypto.createHash("sha512").update(orderId + statusCode + grossAmount + serverKey).digest("hex");
     return hash === signature;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
