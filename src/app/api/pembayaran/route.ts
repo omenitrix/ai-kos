@@ -105,8 +105,24 @@ export async function POST(req: Request) {
 
   const amount = body.amount || booking.totalHarga;
   const method = body.method || "VIRTUAL_ACCOUNT";
-  const paymentReq = { amount, orderId: booking.id, customerEmail: (session.user as any).email || "", method };
+  // cek payment pending yang sudah ada untuk booking ini — pakai ulang biar order_id tidak dobel di Midtrans
+  const { data: existingPay } = await supa.from("payments").select("id,invoiceNo,buktiBayar,status").eq("bookingId", booking.id).eq("payerId", userId).eq("status", "PENDING").order("createdAt", { ascending: false }).limit(1).maybeSingle();
+  if (existingPay && (existingPay as any).buktiBayar) {
+    // sudah ada tagihan pending — kembalikan yang lama + coba refresh token kalau masih valid
+    const existing = existingPay as any;
+    // kalau buktiBayar sudah berisi token/redirectUrl Midtrans, langsung return tanpa buat baru
+    if (existing.buktiBayar.startsWith("http") || existing.buktiBayar.length > 20) {
+      const { data: full } = await supa.from("payments").select("*").eq("id", existing.id).single();
+      return NextResponse.json({ payment: full, token: existing.buktiBayar.startsWith("http") ? undefined : existing.buktiBayar, redirectUrl: existing.buktiBayar.startsWith("http") ? existing.buktiBayar : undefined, reused: true });
+    }
+  }
+  const invoiceNo = genInvoiceNo();
+  // pakai invoiceNo sebagai order_id supaya tiap pembayaran unik — Midtrans reject order_id dobel
+  const paymentReq = { amount, orderId: invoiceNo, customerEmail: (session.user as any).email || "", method };
   const gatewayResp = await getGateway().createPayment(paymentReq);
+  // Midtrans Snap butuh token untuk snap.pay(), redirectUrl untuk fallback redirect — simpan token prioritas
+  const snapToken = (gatewayResp as any).token || null;
+  const snapRedirect = (gatewayResp as any).redirectUrl || null;
 
   const payload: any = {
     bookingId: booking.id,
@@ -114,8 +130,8 @@ export async function POST(req: Request) {
     amount,
     method,
     status: (gatewayResp.status as any) || "PENDING",
-    invoiceNo: genInvoiceNo(),
-    buktiBayar: (gatewayResp as any).redirectUrl || (gatewayResp as any).vaNumber || (gatewayResp as any).qrString || (gatewayResp as any).token || null,
+    invoiceNo,
+    buktiBayar: snapToken || snapRedirect || (gatewayResp as any).vaNumber || (gatewayResp as any).qrString || null,
   };
 
   const { data: payment, error: payErr } = await supa.from("payments").insert(payload).select().single();

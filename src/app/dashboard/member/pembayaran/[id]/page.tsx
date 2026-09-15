@@ -30,35 +30,63 @@ export default function PembayaranDetail() {
 
   const openSnap = async () => {
     if (!pay) return;
-    // kalau provider mock atau pay sudah punya buktiBayar: langsung pakai redirectUrl lama
-    // kalau midtrans: minta token baru via POST /api/pembayaran (idempotent buat demo: buat payment baru atau reuse)
-    // Untuk id ini, kita coba trigger gateway lagi via POST bookingId (butuh bookingId)
+    // 1) Jika tagihan ini sudah punya token Midtrans di buktiBayar, langsung pakai — jangan POST lagi (hindari order_id dobel)
+    const existingToken = typeof pay.buktiBayar === 'string' ? pay.buktiBayar.trim() : '';
+    const looksLikeToken = existingToken && !existingToken.startsWith('http') && existingToken.length > 20 && !existingToken.startsWith('#');
+    const looksLikeUrl = existingToken && existingToken.startsWith('http');
+    if (looksLikeToken && (window as any).snap) {
+      try {
+        (window as any).snap.pay(existingToken, {
+          onSuccess: () => window.location.reload(),
+          onPending: () => setErr('Pembayaran pending — selesaikan di jendela Midtrans'),
+          onError: () => setErr('Pembayaran gagal'),
+          onClose: () => {},
+        });
+        return;
+      } catch (e:any) { /* fallback ke POST */ }
+    }
+    if (looksLikeUrl) { window.location.href = existingToken; return; }
+    // 2) Belum ada token di record ini → buat baru via POST (server akan pakai invoiceNo unik sebagai order_id)
     const bookingId = pay.booking?.id || pay.bookingId;
-    if (!bookingId) { setErr("Booking tidak ditemukan untuk pembayaran ini"); return; }
-    setPaying(true); setErr("");
+    if (!bookingId) { setErr('Booking tidak ditemukan untuk pembayaran ini'); return; }
+    setPaying(true); setErr('');
     try {
-      // Jika sudah ada token di buktiBayar dan mengandung snap, coba load snap langsung
-      // Namun flow aman: POST /api/pembayaran { bookingId } → dapat token/redirectUrl
-      const res = await fetch("/api/pembayaran", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/pembayaran', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId, amount: pay.amount, method: pay.method }),
       });
       const j = await res.json();
-      if (!res.ok) throw new Error(j.error || "Gagal buat transaksi Midtrans");
-      const token: string | undefined = j.token;
-      const redirectUrl: string | undefined = j.redirectUrl || j.payment?.buktiBayar;
-      if (token && (window as any).snap) {
+      if (!res.ok) throw new Error(j.error || 'Gagal buat transaksi Midtrans');
+      // j bisa { payment, token, redirectUrl, reused:true }
+      const token: string | undefined = j.token || (j.payment?.buktiBayar && !String(j.payment.buktiBayar).startsWith('http') ? j.payment.buktiBayar : undefined);
+      const redirectUrl: string | undefined = j.redirectUrl || (j.payment?.buktiBayar && String(j.payment.buktiBayar).startsWith('http') ? j.payment.buktiBayar : undefined);
+      if (j.reused && token && (window as any).snap) {
         (window as any).snap.pay(token, {
-          onSuccess: () => { window.location.reload(); },
-          onPending: () => { setErr("Pembayaran pending — selesaikan di jendela Midtrans"); },
-          onError: () => setErr("Pembayaran gagal"),
+          onSuccess: () => window.location.reload(),
+          onPending: () => setErr('Pembayaran pending'),
+          onError: () => setErr('Pembayaran gagal'),
+          onClose: () => setPaying(false),
+        });
+        return;
+      }
+      if (token && (window as any).snap) {
+        setPay((prev:any)=> ({ ...prev, buktiBayar: token }));
+        (window as any).snap.pay(token, {
+          onSuccess: () => window.location.reload(),
+          onPending: () => setErr('Pembayaran pending — selesaikan di jendela Midtrans'),
+          onError: () => setErr('Pembayaran gagal'),
           onClose: () => setPaying(false),
         });
       } else if (redirectUrl) {
         window.location.href = redirectUrl;
+      } else if (j.payment?.buktiBayar) {
+        const b = String(j.payment.buktiBayar);
+        if (!b.startsWith('http') && (window as any).snap) (window as any).snap.pay(b, { onSuccess: ()=>window.location.reload(), onPending: ()=>setErr('Pending'), onError: ()=>setErr('Gagal'), onClose: ()=>setPaying(false) });
+        else if (b.startsWith('http')) window.location.href = b;
+        else throw new Error('Midtrans tidak mengembalikan token/redirectUrl — cek MIDTRANS_* di Vercel');
       } else {
-        throw new Error("Midtrans tidak mengembalikan token/redirectUrl — cek MIDTRANS_SERVER_KEY & PAYMENT_PROVIDER=midtrans");
+        throw new Error('Midtrans tidak mengembalikan token/redirectUrl — cek MIDTRANS_SERVER_KEY & PAYMENT_PROVIDER=midtrans');
       }
     } catch (e:any) { setErr(e.message); setPaying(false); }
   };
