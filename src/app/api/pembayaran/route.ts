@@ -115,7 +115,7 @@ export async function POST(req: Request) {
     method,
     status: (gatewayResp.status as any) || "PENDING",
     invoiceNo: genInvoiceNo(),
-    buktiBayar: (gatewayResp as any).vaNumber || (gatewayResp as any).qrString || null,
+    buktiBayar: (gatewayResp as any).redirectUrl || (gatewayResp as any).vaNumber || (gatewayResp as any).qrString || (gatewayResp as any).token || null,
   };
 
   const { data: payment, error: payErr } = await supa.from("payments").insert(payload).select().single();
