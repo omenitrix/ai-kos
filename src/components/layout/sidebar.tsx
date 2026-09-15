@@ -17,6 +17,7 @@ function IChart(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="curre
 function IWallet(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h4"/><circle cx="18" cy="12" r="1" fill="currentColor" stroke="none"/></svg>}
 function IMessage(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 4v-12A8.5 8.5 0 0 1 12.5 3.5z"/></svg>}
 function IShop(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><path d="M6 7h12l-1 9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>}
+function IShield(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z"/></svg>}
 function ISparkle(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9z"/><path d="M19 14l1 1 1.5 1-1.5 1-1 1.5-1-1.5-1.5-1z"/></svg>}
 function ILog(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>}
 function IMenu(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...p}><path d="M4 7h16M4 12h16M4 17h16"/></svg>}
@@ -123,6 +124,8 @@ export function Sidebar() {
     { href: "/dashboard/admin/owners", label: "Kelola Owner", icon: IBadge },
     { href: "/dashboard/admin/listings", label: "Approval Listing", icon: IBuilding },
     { href: "/dashboard/admin/transaksi", label: "Transaksi", icon: IWallet },
+    { href: "/dashboard/admin/verifikasi", label: "Verifikasi KTP", icon: IShield },
+    { href: "/dashboard/admin/withdrawal", label: "Penarikan", icon: IWallet },
     { href: "/dashboard/admin/logs", label: "Logs", icon: ILog },
   ];
   const adminMarketplace: Item[] = [
