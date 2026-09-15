@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 function IUsers(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
 function IBuilding(p:any){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>}
@@ -19,6 +22,61 @@ export default function AdminAnalytics() {
 
   const { pengguna, listing, transaksi, revenue, geografis, kosBermasalah, keamanan, marketplace } = d;
 
+  const onExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16); doc.setTextColor("#1C1610");
+    doc.text("AI-KOS — Analytics Platform", 14, 18);
+    doc.setFontSize(9); doc.setTextColor("#8A7D6B");
+    doc.text(`Export: ${new Date().toLocaleString("id-ID")} • ai-kos-ten.vercel.app`, 14, 24);
+    const rows:any[] = [
+      ["Total Pengguna", String(pengguna.totalUsers)],
+      ["Owner", String(pengguna.totalOwners)], ["Member", String(pengguna.totalMembers)], ["Guest", String(pengguna.totalGuests)],
+      ["Baru 7 hari", String(pengguna.newUsersWeek)], ["Baru 30 hari", String(pengguna.newUsersMonth)],
+      ["Retention", pengguna.retention], ["Churn", pengguna.churn],
+      ["Total Kos", String(listing.totalKos)], ["Kos Aktif", String(listing.kosAktif)], ["Kos Nonaktif", String(listing.kosNonaktif)],
+      ["Pending Approval", String(listing.pending)], ["Avg approval", `${listing.avgApprovalJam} jam`], ["Ditolak", String(listing.ditolak)],
+      ["Total Bookings", String(transaksi.totalBookings)], ["Sukses", String(transaksi.bookingSukses)], ["Batal", String(transaksi.bookingBatal)], ["Pending", String(transaksi.bookingPending)],
+      ["GMV", `Rp ${Number(transaksi.gmv).toLocaleString("id-ID")}`],
+      ["Platform Revenue", `Rp ${Number(revenue.platformRevenue).toLocaleString("id-ID")}`], ["Fee", `${revenue.feePersen}%`], ["Bulan ini", `Rp ${Number(revenue.bulanIni).toLocaleString("id-ID")}`],
+      ["Kos Bermasalah", String(kosBermasalah)],
+      ["Suspended", String(keamanan.suspended)], ["Fake booking", String(keamanan.fakeBookingTerdeteksi)], ["Verif Gagal", String(keamanan.verifGagal)],
+    ];
+    autoTable(doc, { startY: 30, head: [["Metric","Value"]], body: rows, theme:"grid", headStyles:{fillColor:[201,169,106]}, styles:{fontSize:8}, margin:{left:14,right:14} });
+    // geografis
+    const y2 = (doc as any).lastAutoTable.finalY + 8;
+    doc.setFontSize(10); doc.setTextColor("#1C1610"); doc.text("Sebaran Geografis (Top 5)", 14, y2);
+    const geoRows = (geografis||[]).map((g:any)=>[g.kota, String(g.jumlah)]);
+    autoTable(doc, { startY: y2+4, head:[["Kota","Jumlah Kos"]], body: geoRows.length?geoRows:[["-","0"]], theme:"grid", headStyles:{fillColor:[28,22,16]}, styles:{fontSize:8}, margin:{left:14,right:14} });
+    doc.save(`AIKOS-admin-analytics-${new Date().toISOString().slice(0,10)}.pdf`);
+  };
+
+  const onExportExcel = () => {
+    const rows = [
+      ["AI-KOS Analytics Platform", `Export ${new Date().toLocaleString("id-ID")}`],
+      [],
+      ["Metric","Value"],
+      ["Total Pengguna", pengguna.totalUsers],
+      ["Owner", pengguna.totalOwners], ["Member", pengguna.totalMembers], ["Guest", pengguna.totalGuests],
+      ["Baru 7 hari", pengguna.newUsersWeek], ["Baru 30 hari", pengguna.newUsersMonth],
+      ["Retention", pengguna.retention], ["Churn", pengguna.churn],
+      ["Total Kos", listing.totalKos], ["Kos Aktif", listing.kosAktif], ["Kos Nonaktif", listing.kosNonaktif],
+      ["Pending Approval", listing.pending], ["Avg approval (jam)", listing.avgApprovalJam], ["Ditolak", listing.ditolak],
+      ["Total Bookings", transaksi.totalBookings], ["Sukses", transaksi.bookingSukses], ["Batal", transaksi.bookingBatal], ["Pending", transaksi.bookingPending],
+      ["GMV", transaksi.gmv], ["Platform Revenue", revenue.platformRevenue], ["Fee %", revenue.feePersen], ["Bulan ini", revenue.bulanIni],
+      ["Kos Bermasalah", kosBermasalah],
+      ["Suspended", keamanan.suspended], ["Fake booking", keamanan.fakeBookingTerdeteksi], ["Verif Gagal", keamanan.verifGagal],
+      [],
+      ["Sebaran Geografis"],
+      ["Kota","Jumlah"],
+      ...(geografis||[]).map((g:any)=>[g.kota, g.jumlah]),
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(rows as any);
+    ws["!cols"] = [{wch:22},{wch:28}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Analytics");
+    XLSX.writeFile(wb, `AIKOS-admin-analytics-${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+
   return (
     <div className="p-4 md:p-6 space-y-5 max-w-[1100px]">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -27,7 +85,11 @@ export default function AdminAnalytics() {
           <h1 className="serif text-[26px] leading-none mt-1">Analytics <span className="text-[#C9A96A]">Platform</span></h1>
           <p className="text-sm text-[#8A7D6B] mt-1">Kesehatan bisnis AI-KOS secara keseluruhan — real-time</p>
         </div>
-        <span className="rounded-full bg-[#1C1610] text-white px-4 py-2 text-xs font-medium">Live • {new Date().toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"})}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-[#1C1610] text-white px-4 py-2 text-xs font-medium">Live • {new Date().toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"})}</span>
+          <button onClick={onExportPDF} className="rounded-full bg-white border border-[#EDE6D6] px-4 py-2 text-xs font-semibold hover:bg-[#FDFBF7]">Export PDF</button>
+          <button onClick={onExportExcel} className="rounded-full bg-[#C9A96A] text-white px-4 py-2 text-xs font-semibold hover:bg-[#B8944F]">Export Excel</button>
+        </div>
       </div>
 
       {/* KPI 4 */}
